@@ -12,7 +12,7 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = ["Hello", "My", "Friend"]
     
-    
+    let defaults = UserDefaults.standard
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
@@ -58,6 +58,8 @@ class TodoListViewController: UITableViewController {
             //What will heppen once user clicks Add Item Button
             self.itemArray.append(textField.text!)
             
+            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
+            
             self.tableView.reloadData()
             
         }
@@ -83,6 +85,10 @@ class TodoListViewController: UITableViewController {
         
         tableView.separatorStyle = .none
         // Do any additional setup after loading the view, typically from a nib.
+        
+        if let items = defaults.array(forKey: "ToDoListArray") as? [String] {
+            itemArray = items
+        }
     }
 
     override func didReceiveMemoryWarning() {
