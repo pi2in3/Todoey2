@@ -10,7 +10,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    var itemArray = ["Hello", "My", "Friend"]
+    var itemArray = [Item]()
     
     let defaults = UserDefaults.standard
     
@@ -25,7 +25,19 @@ class TodoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let cellItem = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = cellItem.title
+        
+        cell.accessoryType = cellItem.done == true ? .checkmark : .none
+        
+        // or
+        
+//        if cellItem.done == false {
+//            cell.accessoryType = .none
+//        } else {
+//            cell.accessoryType = .checkmark
+//        }
         
         return cell
     }
@@ -35,14 +47,22 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        print(itemArray[indexPath.row])   //print itemArray selected item
+        print(itemArray[indexPath.row].title)   //print itemArray selected item
                 
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
-        tableView.deselectRow(at: indexPath, animated: true) //deslect the tapped row wuth anim
+//        if itemArray[indexPath.row].done == false {
+//            itemArray[indexPath.row].done = true       //cell.accessoryType = .checkmark
+//        } else {
+//            itemArray[indexPath.row].done = false      //cell.accessoryType = .none
+//        }
+        
+        //or
+        
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        
+        tableView.reloadData()          // Reload tableView Cells if any itemArray's cell's done property is changed
+        
+        tableView.deselectRow(at: indexPath, animated: true) //deslect the tapped row with animation
     }
     
     
@@ -54,9 +74,13 @@ class TodoListViewController: UITableViewController {
         
         let alert = UIAlertController(title: "Add New Item", message: "Please Type Here", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+        let alertAction = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //What will heppen once user clicks Add Item Button
-            self.itemArray.append(textField.text!)
+            
+            let newItem = Item()
+            newItem.title = textField.text!
+            
+            self.itemArray.append(newItem)
             
             self.defaults.set(self.itemArray, forKey: "ToDoListArray")
             
@@ -68,12 +92,12 @@ class TodoListViewController: UITableViewController {
             
             //What will happen once user clicks Bar Button
             alertTextField.placeholder = "Create New Item"
-            textField = alertTextField
+            textField = alertTextField        //textField has declared in Line 53 as a Var
             print("~~Now~~")
         }
         
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
+        alert.addAction(alertAction)                           // Add action as an Action to alert
+        present(alert, animated: true, completion: nil)   // Add alert as a present to comes up in screen
     }
     
     
@@ -86,9 +110,22 @@ class TodoListViewController: UITableViewController {
         tableView.separatorStyle = .none
         // Do any additional setup after loading the view, typically from a nib.
         
-        if let items = defaults.array(forKey: "ToDoListArray") as? [String] {
+
+        
+        let initItem = Item()
+        initItem.title = "Find Mike"
+        initItem.done = true
+        itemArray.append(initItem)
+        
+        let initItem2 = Item()
+        initItem2.title = "Find Me!"
+        itemArray.append(initItem2)
+        
+        
+        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] {
             itemArray = items
         }
+    
     }
 
     override func didReceiveMemoryWarning() {
